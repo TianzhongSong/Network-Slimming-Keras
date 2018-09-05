@@ -15,8 +15,9 @@ def residual_block(x, nb_filters, strides=(1, 1), weight_decay=1E-4, sparse_fact
                 use_bias=False,
                 kernel_regularizer=l2(weight_decay))(x)
     x = BatchNormalization()(x)
-    x = SparsityRegularization(l1=sparse_factor)(x)
     x = Activation('relu')(x)
+    # why?
+    x = SparsityRegularization(l1=sparse_factor)(x)
     x = Conv2D(nb_filters, (3, 3),
                 kernel_initializer='he_normal',
                 padding="same",
