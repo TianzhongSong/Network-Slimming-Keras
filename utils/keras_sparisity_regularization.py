@@ -42,7 +42,7 @@ class SparsityRegularization(Layer):
         super(SparsityRegularization, self).build(input_shape)
 
     def call(self, inputs, mask=None):
-        return tf.multiply(inputs, self.gamma)
+        return inputs * self.gamma
 
     def compute_output_shape(self, input_shape):
         return input_shape
