@@ -1,7 +1,7 @@
 import keras
 from utils.load_cifar import load_data
 from keras.preprocessing.image import ImageDataGenerator
-from models import resnet, densenet, VGGnet, inception
+from models import resnet, VGGnet
 from utils.schedules import onetenth_60_120_160
 from utils.channel_pruning import freeze_SR_layer, set_compact_model_weights
 import argparse
@@ -73,12 +73,6 @@ def training():
                               wide_factor=args.wide_factor,
                               sparse_factor=args.sparse_factor)
         save_name = 'resnet_{}_{}_{}'.format(args.depth, args.wide_factor, args.data)
-    elif args.model == 'densenet':
-        model = densenet.densenet(nb_classes,
-                                  growth_rate=args.growth_rate,
-                                  depth=args.depth,
-                                  sparse_factor=args.sparse_factor)
-        save_name = 'densenet_{}_{}_{}'.format(args.depth, args.growth_rate, args.data)
     else:
         model = VGGnet.vgg(nb_classes, sparse_factor=args.sparse_factor)
         save_name = 'VGGnet_{}'.format(args.data)
@@ -114,7 +108,13 @@ def training():
                         epochs=fine_tune_epochs,
                         validation_data=(x_test, y_test))
     # create compact model
-    compact_model = VGGnet.vgg(nb_classes, sparse_factor=args.sparse_factor, prune_rate=args.prune_rate)
+    if args.model == 'resnet':
+        model = resnet.resnet(nb_classes,
+                              depth=args.depth,
+                              wide_factor=args.wide_factor,
+                              sparse_factor=args.sparse_factor, prune_rate=args.prune_rate)
+    else:
+        model = VGGnet.vgg(nb_classes, sparse_factor=args.sparse_factor, prune_rate=args.prune_rate)
     compact_model.summary()
 
     set_compact_model_weights(model, compact_model)
